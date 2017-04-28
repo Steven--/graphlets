@@ -28,7 +28,7 @@ public class SetColoredTreeletCache
 	
 	public SetColoredTreelet mergeTreelets(SetColoredTreelet t1, SetColoredTreelet t2)
 	{
-		TreeletPair<SetColoredTreelet> ctp = new TreeletPair<>(t1, t2);
+		final TreeletPair<SetColoredTreelet> ctp = new TreeletPair<>(t1, t2);
 		SetColoredTreelet t = merges.getOrDefault(ctp, null);
 
 		if(t!=null)
