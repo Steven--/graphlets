@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 /** A random walk on the space of graphlets of a host graph.
- * This walk is "coward" in the sense that it only steps to graphlets that can be obtained by removing nodes that do not disconnect the current graphlet; in other words, it can move from graphlet A to graphlet B only if their intersection is also connected graphlet.
+ * This walk is "coward" in the sense that it only steps to graphlets that can be obtained 
+ * by removing nodes that do not disconnect the current graphlet; in other words,it can move
+ * from graphlet A to graphlet B only if their intersection is also connected graphlet.
  * @author anon
  */
 import java.util.Set;

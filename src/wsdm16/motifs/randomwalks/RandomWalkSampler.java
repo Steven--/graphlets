@@ -38,9 +38,11 @@ import wsdm16.motifs.randomwalks.FullGraphletRandomWalk.InvalidStartingNodeExcep
 /**
  * A random-walk based sampler for graphlets in a graph.
  * 
- * The synopsis is: java wsdm16.motifs.GraphletSampler -b GRAPH -k
- * GRAPHLET_SIZE -n SAMPLES -t WALK_LENGTH
- * 
+ * The most simple usage is a follows:
+ *   java RandomWalkSampler -b GRAPH -k GRAPHLET_SIZE -n SAMPLES -t WALK_LENGTH
+ * For instance,
+ *   java RandomWalkSampler -b wordassociation-2011 -k 5 -n 100 -t 10000
+ *   
  * RandomWalkSampler.java - created on 06 lug 2016
  * 
  * @author anon
@@ -54,8 +56,8 @@ public class RandomWalkSampler
 		String historyFile = null; // for loading a previous walk
 		String sampleFile = null; // for printing out samples
 		String saveFinalStateFile = null; // for saving and then restoring the random walk state
-		
-		boolean graphletWalk = false;
+		boolean graphletWalk = false; // no self-loops?
+		boolean smart = false; // smart random walk i.e. reweight transitions?
 		int k = -1;
 		int numSamples = -1;
 		int numSteps = -1;
@@ -77,6 +79,7 @@ public class RandomWalkSampler
 		options.addOption("i", true, "sampling interval (print out the graphlet each given number of steps)");
 		options.addOption("o", true, "save samples (hash codes of graphlets) to this text file");
 		options.addOption("s", true, "save the final set of vertices of each walk to this text file");
+		options.addOption("m", false, "smart -- reweight transitions to converge faster");
 		
 		CommandLineParser parser = new PosixParser();
 		try
@@ -102,6 +105,7 @@ public class RandomWalkSampler
 			samplingInterval = cmd.hasOption("i") ? Integer.parseInt(cmd.getOptionValue("i")) : numSteps;
 			sampleFile = cmd.hasOption("o") ? cmd.getOptionValue("o") : sampleFile;
 			saveFinalStateFile = cmd.hasOption("s") ? cmd.getOptionValue("s") : saveFinalStateFile;
+			smart = cmd.hasOption("m");
 		}
 		catch (ParseException e)
 		{
@@ -150,7 +154,7 @@ public class RandomWalkSampler
 		pl.logger().info("Sampling...");
 		BaseGraphIsomorphisms isomorphisms = new LazyGraphIsomorphisms(k);
 		long start = new Date().getTime();
-		RandomGenerator rnd = new Well19937c(); // this is for starting from random nodes
+		RandomGenerator rnd = new Well19937c(0); // this is for starting from random nodes
 		Long2LongOpenHashMap hashCount = new Long2LongOpenHashMap();
 		long realSteps = 0;
 
@@ -282,7 +286,7 @@ public class RandomWalkSampler
 		}
 		
 		/**
-		 * Ordinary (i.e. with self-loops) random walk
+		 * Ordinary (i.e. with self-loops) random walk, done from scratch
 		 */
 		if (!graphletWalk && historyFile == null)
 		{
@@ -319,8 +323,11 @@ public class RandomWalkSampler
 				int u = rnd.nextInt(G.numNodes());
 				FullGraphletRandomWalk randomWalk = null;
 				try {
-					randomWalk = new FullGraphletRandomWalk(G, k, u, maxDegree,
-							rnd);
+					if (smart) {
+						randomWalk = new SmartGraphletRandomWalk(G, k, u, 2, rnd);
+					}
+					else
+						randomWalk = new FullGraphletRandomWalk(G, k, u, maxDegree,	rnd);
 				} catch (InvalidStartingNodeException c) {
 					continue;
 				}
@@ -338,8 +345,8 @@ public class RandomWalkSampler
     					} catch (IOException e) {
     						e.printStackTrace();
     					}
-					else
-						System.out.print(sign + " ");
+//					else
+//						System.out.print(sign + " ");
 				}
 				
 				if (sampleFile != null) 
@@ -348,8 +355,8 @@ public class RandomWalkSampler
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-				else
-					System.out.println();
+//				else
+//					System.out.println();
 				
 				if(saveFinalStateFile != null)
 				{
@@ -374,7 +381,6 @@ public class RandomWalkSampler
 				if(currTime >= lastTime+60*5) //5 minutes
 				{
 					double elapsed = currTime - startTime;
-
 					double virtualSpeed = elapsed/virtualSteps;
 					double secsLeft = (numSamples*numSteps-virtualSteps)*virtualSpeed;
 					int d = (int)(secsLeft/86400);
@@ -444,7 +450,7 @@ public class RandomWalkSampler
 								.format(((double) 1e3 * duration / realSteps))
 						+ " msec/state");
 		pl.logger()
-				.info("Average number of states traversed by the random walk: "
+				.info("Average transitions between different graphlets, per sample taken: "
 						+ ((double) realSteps) / numSamples);
 
 		/*

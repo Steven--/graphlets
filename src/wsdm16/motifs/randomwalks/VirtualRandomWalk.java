@@ -41,6 +41,10 @@ public class VirtualRandomWalk {
 	private RandomGenerator rnd;
 
 	private class DataOverException extends Exception {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 	};
 	
 	/**

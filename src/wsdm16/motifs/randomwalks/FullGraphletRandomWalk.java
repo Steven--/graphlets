@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Map;
 /** 
  * A random walk on the space of graphlets of a host graph.
- * This walk is "full", in the sense that it can step from graphlet A to graphlet B if the two graphlets differ by exactly one node, even if their intersection does not induce a connected subgraph of G.
+ * This walk is "full", in the sense that it can step from graphlet A to graphlet B if the
+ * two graphlets differ by exactly one node, even if their intersection does not induce a connected subgraph of G.
  * @author anon
  */
 import java.util.Set;
@@ -78,7 +79,7 @@ public class FullGraphletRandomWalk extends GraphletRandomWalk {
 	 * @param u the starting node
 	 * @return
 	 */
-	private Graphlet buildGraphlet(int u)
+	protected Graphlet buildGraphlet(int u)
 	{	
 		BreadthFirstSearch.Result result = new BreadthFirstSearch(G, u).setMaxNodes(k).visit();
 		if (result.getReachedNodes() == k)
@@ -90,9 +91,9 @@ public class FullGraphletRandomWalk extends GraphletRandomWalk {
 	/** Initialize the random walk.
 	 * 
 	 */
-	private void init() 
+	protected void init() 
 	{
-		if(maxDegree==-1)
+		if(maxDegree==-1) // then compute by ourselves
 		{
 			NodeIterator it = G.nodeIterator();
 			for(int i=G.numNodes(); i>0; i--)
@@ -103,7 +104,7 @@ public class FullGraphletRandomWalk extends GraphletRandomWalk {
 			}
 		}
 
-		// Find a first graphlet
+		// find a first graphlet to start from
 		int u = 0;
 		while (H == null && u < G.numNodes()) {
 			H = buildGraphlet(u);
@@ -122,7 +123,7 @@ public class FullGraphletRandomWalk extends GraphletRandomWalk {
 	 * Insert in cache the neighbors of a given node.
 	 * @param u
 	 */
-	private void updateNeighCache(int u) {
+	protected void updateNeighCache(int u) {
 		Set<Integer> neighs = new IntOpenHashSet(G.outdegree(u));
 		LazyIntIterator succ = G.successors(u);
 		for (int d = G.outdegree(u); d > 0; d--)
@@ -138,7 +139,7 @@ public class FullGraphletRandomWalk extends GraphletRandomWalk {
 	 * @param who
 	 * @return
 	 */
-	private Set<Integer> neighborUnion(Collection<Integer> who)
+	protected Set<Integer> neighborUnion(Collection<Integer> who)
 	{
 		who = new IntArraySet(who);
 		// is it cached?
@@ -219,7 +220,7 @@ public class FullGraphletRandomWalk extends GraphletRandomWalk {
 		return queue;
 	}
 
-	private static int[][] connectedComponents(ImmutableGraph graph)
+	protected static int[][] connectedComponents(ImmutableGraph graph)
 	{
 		int[][] components = new int[graph.numNodes()+1][];
 		boolean[] discovered = new boolean[graph.numNodes()];
@@ -241,25 +242,21 @@ public class FullGraphletRandomWalk extends GraphletRandomWalk {
 	public void updateSwitchables() {
 		List<Integer> nodes = new ArrayList<>(H.getNodes());
 		switchables = new HashMap<>(nodes.size());
-		for (int u : H.getNodes())
-		{ // see what can be done with H\{u}
-
+		for (int u : H.getNodes()) { // see what can be done with H\{u}
 			Graphlet H1 = new Graphlet(H);
 			H1.removeNode(u);
 			List<Integer> nodes1 = new ArrayList<>(H1.getNodes());
 
 			// get the connected components of H \ {u}
-			int[][] connComps = connectedComponents(H1.asGraph());		    
-			ArrayList<Integer>[] comps = (ArrayList<Integer>[])new ArrayList[k-1];
+			int[][] connComps = connectedComponents(H1.asGraph());
+			@SuppressWarnings("unchecked")
+			ArrayList<Integer>[] comps = (ArrayList<Integer>[]) new ArrayList[k - 1];
 			int ncomps = 0;
-			while(connComps[ncomps]!=null)
-			{
-				comps[ncomps]= new ArrayList<Integer>();
-				for (int i = 0; connComps[ncomps][i]!=-1; i++)
-				{
+			while (connComps[ncomps] != null) {
+				comps[ncomps] = new ArrayList<Integer>();
+				for (int i = 0; connComps[ncomps][i] != -1; i++) {
 					comps[ncomps].add(nodes1.get(connComps[ncomps][i]));
 				}
-
 				ncomps++;
 			}
 
@@ -323,13 +320,13 @@ public class FullGraphletRandomWalk extends GraphletRandomWalk {
 			int pos = random.nextInt(switches.size());
 			Iterator<Integer> itr = switches.iterator();
 			for (int j = 0; j < pos+1; j++)
-				v = itr.next();			
+				v = itr.next();	
 		} else {
 			// probably faster to just convert into a list
 			List<Integer> uList = new ArrayList<>(switches);
 			v = uList.get(random.nextInt(switches.size()));
 		}
-		int[] uv = new int[2];	
+		int[] uv = new int[2];
 		uv[0] = u;
 		uv[1] = v;
 		return uv;
