@@ -1,5 +1,6 @@
 package wsdm16.motifs;
 
+import java.io.FileWriter;
 import java.io.IOException;
 
 import org.apache.commons.cli.CommandLine;
@@ -13,6 +14,8 @@ import it.unimi.dsi.logging.ProgressLogger;
 import it.unimi.dsi.webgraph.ASCIIGraph;
 import it.unimi.dsi.webgraph.BVGraph;
 import it.unimi.dsi.webgraph.ImmutableGraph;
+import it.unimi.dsi.webgraph.LazyIntIterator;
+import it.unimi.dsi.webgraph.NodeIterator;
 import it.unimi.dsi.webgraph.Transform;
 import it.unimi.dsi.webgraph.algo.ConnectedComponents;
 
@@ -31,7 +34,7 @@ public class GraphCleanup {
 				"only save the largest connected component of the graph");
 		options.addOption("O", true, "output graph file basename");
 		options.addOption("a", false, "store in ASCII format");
-		options.addOption("e", false, "store in ESCAPE format");
+		options.addOption("e", false, "store in ESCAPE format (note: this does NOT clean, only convert)");
 
 		CommandLineParser parser = new PosixParser();
 
@@ -65,12 +68,12 @@ public class GraphCleanup {
 			e.printStackTrace();
 			return;
 		}
-
 		pl.logger().info("Graph loaded.");
 
-//		G = wsdm16.graphutils.Transform.removeSelfLoops(G);
-		if (!escape)
+		if (!escape) {
+			G = wsdm16.graphutils.Transform.removeSelfLoops(G);
 			G = Transform.symmetrize(G);
+		}
 
 		if (largestCC) {
 			pl.logger().info("Saving only the largest connected component.");
@@ -87,9 +90,23 @@ public class GraphCleanup {
 				pl.logger().info("Writing graph in ASCII format. Basename: "
 						+ outBasename);
 			} else if (escape) {
-				ASCIIGraph.store(G, outBasename, pl);
 				pl.logger().info("Writing graph in ESCAPE format. Basename: "
 						+ outBasename);
+				String outFile = outBasename + ".graph-escape";
+				FileWriter writer = new FileWriter(outFile);
+				writer.write(G.numNodes() + " " + (G.numArcs()/2) + "\n");
+				NodeIterator itr = G.nodeIterator();
+				while (itr.hasNext()) {
+					int u = itr.nextInt();
+					LazyIntIterator successors = G.successors(u);
+					int d = G.outdegree(u);
+					while( d-- != 0 ) {
+						int v = successors.nextInt();
+						if (v > u)
+							writer.write(u + " " + v + "\n");
+					}
+				}
+				writer.close();
 			} else {
 				BVGraph.store(G, outBasename, -1, 1, -1, -1, 0, pl);
 				pl.logger().info("Writing graph in BVGraph format. Basename: "
