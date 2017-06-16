@@ -15,7 +15,7 @@ import wsdm16.motifs.distributions.EnumeratedDistribution;
 import wsdm16.motifs.distributions.EnumeratedIntegerDistribution;
 
 //FIXME: Reference2???HashMaps rely on the cache returning the same instance when two treelets are equal
-public class AlonColorCoding extends BaseColorCoding
+public class CC2 extends BaseColorCoding
 {	
 	private class ColorCodingSlice 
 	{
@@ -331,7 +331,7 @@ public class AlonColorCoding extends BaseColorCoding
 	private SetColoredTreeletCache cache;
 	private ColorCodingSlice slices[];
 	
-	public AlonColorCoding(ImmutableGraph G, int k)
+	public CC2(ImmutableGraph G, int k)
 	{
 		super(G, k);
 

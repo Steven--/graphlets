@@ -17,7 +17,7 @@ import wsdm16.motifs.Graphlet;
 import wsdm16.motifs.SpanningTrees;
 import wsdm16.motifs.colorcoding.BaseColorCoding;
 import wsdm16.motifs.colorcoding.BaseColorCoding.IColorCodingSampler;
-import wsdm16.motifs.colorcoding.ColorCoding;
+import wsdm16.motifs.colorcoding.ColoredTreeletColorCoding;
 
 public class TestColorCoding {
 /*
@@ -107,7 +107,7 @@ public class TestColorCoding {
     	ImmutableGraph G = Transform.symmetrize(GraphGenerator.erdosRenyiGraph(n, n*10) ).immutableView();
     	G = Transform.removeSelfLoops(G);
  	
-    	BaseColorCoding C = new ColorCoding(G, k);
+    	BaseColorCoding C = new ColoredTreeletColorCoding(G, k);
     	C.color();
     	C.run(4);
 		

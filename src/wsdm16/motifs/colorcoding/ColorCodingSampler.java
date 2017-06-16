@@ -113,10 +113,10 @@ public class ColorCodingSampler
 		if(alon)
 		{
 			pl.logger().info("Using Alon's Color Coding");
-			C = new AlonColorCoding(G, k);
+			C = new CC2(G, k);
 		}
 		else
-			C = new ColorCoding(G, k);
+			C = new ColoredTreeletColorCoding(G, k);
 		
 		pl.logger().info("Graph " + basename + " has " + G.numNodes() + " nodes and " + G.numArcs()/2 + " undirected edges.");
 		pl.logger.info("Sampling motifs of size " + k);

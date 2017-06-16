@@ -7,7 +7,7 @@ import org.junit.Test;
 import it.unimi.dsi.webgraph.ImmutableGraph;
 import wsdm16.graphutils.GraphGenerator;
 import wsdm16.graphutils.Transform;
-import wsdm16.motifs.colorcoding.AlonColorCoding;
+import wsdm16.motifs.colorcoding.CC2;
 import wsdm16.motifs.colorcoding.BaseColorCoding.IColorCodingSampler;
 import wsdm16.motifs.colorcoding.SetColoredTreelet;
 
@@ -44,7 +44,7 @@ public class TestAlonColorCoding {
     	ImmutableGraph G = Transform.symmetrize(GraphGenerator.erdosRenyiGraph(n, n*10) ).immutableView();
     	G = Transform.removeSelfLoops(G);
  	
-    	AlonColorCoding C = new AlonColorCoding(G, k);
+    	CC2 C = new CC2(G, k);
     	C.color();
     	C.run(4);
 		
