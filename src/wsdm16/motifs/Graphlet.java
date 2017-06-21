@@ -25,6 +25,7 @@ import wsdm16.graphutils.BreadthFirstSearch;
 public class Graphlet {
 
 	private ImmutableGraph G;
+	private ImmutableGraphWrapper W = null;
 	private Set<Integer> nodes;
 	private Set<Integer> neighbors;
 	private boolean upToDate;
@@ -57,6 +58,15 @@ public class Graphlet {
 	}
 
 	/**
+	 * Sets the graph wrapper, which should speed up {@link Graphlet#asGraph()}
+	 * 
+	 * @param W
+	 */
+	public void setGraphWrapper(ImmutableGraphWrapper W) {
+		this.W = W;
+	}
+
+	/**
 	 * Returns the number of nodes in the graphlet.
 	 * 
 	 * @return
@@ -78,6 +88,7 @@ public class Graphlet {
 
 	/**
 	 * Return the nodes of the graphlet.
+	 * 
 	 * @return the set of nodes of the host graph which form the graphlet.
 	 */
 	public Set<Integer> getNodes() {
@@ -178,17 +189,29 @@ public class Graphlet {
 
 		IntArrayList a = new IntArrayList(nodes);
 		h.addNodes(nodes.size());
-
-		for (int u : nodes) {
-			LazyIntIterator succ = G.successors(u);
-			for (int d = G.outdegree(u); d > 0; d--) {
-				int v = succ.nextInt();
-				if (a.contains(v))
-					h.addArc(a.indexOf(u), a.indexOf(v));
-
-				// if (hashMap.containsKey(v))
-				// h.addArc(hashMap.get(u), hashMap.get(v));
+		if (this.W == null) {
+			ImmutableGraph G1 = G.copy();
+			for (int u : nodes) {
+				int iu = a.indexOf(u);
+				int[] neighs = G1.successorArray(u);
+				// LazyIntIterator succ = G.successors(u);
+				for (int d = G1.outdegree(u) - 1; d >= 0; d--) {
+					int iv = a.indexOf(neighs[d]);
+					if (iv >= 0)
+						h.addArc(iu, iv);
+					// if (hashMap.containsKey(v))
+					// h.addArc(hashMap.get(u), hashMap.get(v));
+				}
 			}
+		} else {
+			for (int i = 0; i < a.size(); i++) {
+				for (int j = i+1; j < a.size(); j++) {
+					if (W.areNeighbors(a.getInt(i), a.getInt(j))) {
+						h.addArc(i, j);
+						h.addArc(j, i);
+					}
+				}
+			}			
 		}
 		return h;
 	}
@@ -246,6 +269,7 @@ public class Graphlet {
 
 	/**
 	 * Return the host graph.
+	 * 
 	 * @return the host graph of the graphlet.
 	 */
 	public ImmutableGraph getG() {
