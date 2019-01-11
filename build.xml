@@ -1,0 +1,30 @@
+<project name="wsdm16" default="jar">
+    <path id="build.classpath">
+        <fileset dir="lib">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="compile">
+        <mkdir dir="bin" />
+        <javac includeantruntime="false" srcdir="src" destdir="bin">
+            <classpath refid="build.classpath"/>
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile">
+        <jar destfile="wsdm16.jar" basedir="bin">
+            <zipgroupfileset dir="lib" includes="*.jar"/>
+
+            <manifest>
+                <attribute name="Main-Class" value="wsdm16.motifs.colorcoding.ColorCodingSampler"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="clean">
+        <delete dir="bin" />
+        <delete file="wsdm16.jar" />
+    </target>
+
+</project>
