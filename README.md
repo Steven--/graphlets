@@ -1,5 +1,7 @@
 # graphlets
 
+**IMPORTANT**: this software is superseded by the (much faster) C++ graphlet mining tool MOTIVO available at [https://bitbucket.org/steven_/motivo/] (https://bitbucket.org/steven_/motivo/).
+
 This is the CC algorithm for counting graphlets (i.e. induced subgraphs, also called motifs or patterns) in large graphs.
 It is ready-to-use for graphs in the WebGraph format (http://webgraph.di.unimi.it/).
 If you publish results based on this code, please acknowledge us by citing these two papers:
