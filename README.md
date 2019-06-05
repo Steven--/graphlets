@@ -4,8 +4,7 @@ This is the CC algorithm for counting graphlets (i.e. induced subgraphs, also ca
 It is ready-to-use for graphs in the WebGraph format (http://webgraph.di.unimi.it/).
 If you publish results based on this code, please acknowledge us by citing these two papers:
 
->
-@inproceedings{BCKLP2017,  
+>@inproceedings{BCKLP2017,  
 author = {Bressan, Marco and Chierichetti, Flavio and Kumar, Ravi and Leucci, Stefano and Panconesi, Alessandro},  
  title = {Counting Graphlets: Space vs Time},  
  booktitle = {Proceedings of the Tenth ACM International Conference on Web Search and Data Mining},  
